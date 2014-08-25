@@ -21,11 +21,15 @@
     base.init = function() {
       base.options = $.extend({}, $.textcounter.defaultOptions, options);
 
-      // append the count element
-      var counterText = base.options.countDown ? base.options.countDownText : base.options.counterText,
-          counterNum = base.options.countDown ? base.options.max : 0;
+      if (!base.options.countElement) {
+        // append the count element
+        var counterText = base.options.countDown ? base.options.countDownText : base.options.counterText,
+            counterNum = base.options.countDown ? base.options.max : 0;
 
-      base.$el.after('<' + base.options.countContainerElement + ' class="' + base.options.countContainerClass + '">' + counterText + '<span class="text-count">' + counterNum + '</span></' + base.options.countContainerElement + '>');
+        base.$el.after('<' + base.options.countContainerElement + ' class="' + base.options.countContainerClass + '">' + counterText + '<span class="' + base.options.countNumberClass + '">' + counterNum + '</span></' + base.options.countContainerElement + '>');
+      } else {
+
+      }
 
       // bind input events
       base.$el.bind('keyup.textcounter click.textcounter blur.textcounter focus.textcounter change.textcounter paste.textcounter', base.checkLimits).trigger('click.textcounter');
@@ -36,7 +40,7 @@
 
     base.checkLimits = function(e) {
       var $this = base.$el,
-          $countEl = $this.next('.' + base.options.countContainerClass),
+          $countEl = base.options.countElement || $this.next('.' + base.options.countContainerClass),
           $text = $this.val(),
           textCount = 0,
           textTotalCount = 0,
@@ -150,14 +154,14 @@
 
     base.setCount = function(count) {
       var $this = base.$el,
-          $countEl = $this.next('.' + base.options.countContainerClass);
+          $countEl = base.options.countElement || $this.next('.' + base.options.countContainerClass);
 
-      $countEl.children('.text-count').text(count);
+      $countEl.children('.' + base.options.countNumberClass).text(count);
     };
 
     base.setErrors = function(type) {
       var $this = base.$el,
-          $countEl = $this.next('.' + base.options.countContainerClass);
+          $countEl = base.options.countElement || $this.next('.' + base.options.countContainerClass);
 
       $this.addClass(base.options.inputErrorClass);
       $countEl.addClass(base.options.counterErrorClass);
@@ -180,7 +184,7 @@
 
     base.clearErrors = function(type) {
       var $this = base.$el,
-          $countEl = $this.next('.' + base.options.countContainerClass);
+          $countEl = base.options.countElement || $this.next('.' + base.options.countContainerClass);
 
       $countEl.children('.error-text-' + type).remove();
 
@@ -212,6 +216,8 @@
     'countDown'                 : false,                    // if the counter should deduct from maximum characters/words rather than counting up
     'countDownText'             : "Remaining: ",            // count down text
     'countExtendedCharacters'   : false,                    // count extended UTF-8 characters as 2 bytes (such as Chinese characters)
+    'countElement'              : null,                     // custom element that contains the count 
+    'countNumberClass'          : 'text-count',             // selector of child of countElement that will contain the count
 
     // Callback API
     maxcount                    : function(el){},           // Callback: function(element) - Fires when the counter hits the maximum word/character count
